@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Vehicle App</title>
+</head>
+<body>
+    <div class="col-md-12">
+        <div class="col-md-6">
+            <h2>All Vehicles</h2>
+            <ul id="VehicleFullList" />
+
+        </div>
+        <div class="col-md-6">
+            <h2>Custom Search</h2>
+            <div class="col-md-3">
+                <label>ID: </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="Id" />
+            </div>
+        </div>
+        <br />
+        <div class="col-md-6">
+            <div class="col-md-3">
+                <label> Make:</label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="Make" />
+            </div>
+        </div>
+
+        <br />
+        <div class="col-md-6">
+            <div class="col-md-3">
+                <label> Model:</label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="Model" />
+            </div>
+        </div>
+        <br />
+        <div class="col-md-6">
+            <div class="col-md-3">
+                <label> Year: </label>
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="Year" />
+            </div>
+        </div>
+        <br />
+        <input type="button" value="Search" onclick="find();" />
+        <div class="col-md-6">
+            <ul id="Vehicle" />
+        </div>
+    </div>
+
+
+    <script src="~/Scripts/jquery-3.0.0.js"></script>
+    <script>
+        var uri = '/api/Vehicles';
+
+        $(document).ready(function () {
+            // Send an AJAX request
+            $.getJSON(uri)
+                .done(function (data) {
+                    // On success, 'data' contains a list of Vehicles.
+                    $.each(data, function (key, item) {
+                        // Add a list item for the Vehicle.
+                        $('<li>', { text: formatItem(item) }).appendTo($('#VehicleFullList')).addClass("list").addClass("input-lg");
+                    });
+                });
+        });
+
+
+        function formatItem(item) {
+            return item.Id + ': ' + item.Make + " : " + item.Model + " : " + item.Year;
+        }
+
+        function find() {
+            $('#Vehicle').html("");
+            var id = $('#Id').val();
+            var make = $('#Make').val();
+            var model = $('#Model').val();
+            var year = $('#Year').val();
+
+            var data = {};
+            if(id!=null && id!= "")
+            {
+                data["id"] = id;
+            }
+            if(make!=null && make!= "")
+            {
+                data["make"] = make;
+            }
+            if(model!=null && model!= "")
+            {
+                data["model"] = model;
+            }
+            if(year!=null && year!= "")
+            {
+                data["year"] = year;
+            }
+
+            $.getJSON(uri, data)
+                .done(function (data) {
+                    if (data.length > 1) {
+                        $.each(data, function (key, item) {
+                            // Add a list item for the Vehicle.
+                            $('<li>', { text: formatItem(item) }).appendTo($('#Vehicle')).addClass("list").addClass("input-lg");
+                        });
+                    }
+                    else {
+                        debugger;
+                        $('<li>', { text: formatItem(data[0]) }).appendTo($('#Vehicle')).addClass("list").addClass("input-lg");
+                    }
+                    
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                    $('#Vehicle').text('Error: ' + err);
+                });
+        }
+    </script>
+</body>
+</html>
